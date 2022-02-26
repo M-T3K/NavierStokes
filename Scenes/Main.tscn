@@ -1,0 +1,210 @@
+[gd_scene load_steps=29 format=2]
+
+[ext_resource path="res://Scenes/Main.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/MouseController.gd" type="Script" id=2]
+[ext_resource path="res://Shaders/GradientSubtractionShader.tres" type="Shader" id=3]
+[ext_resource path="res://Assets/Images/baseTexture.png" type="Texture" id=5]
+[ext_resource path="res://Scenes/PressureViewport.gd" type="Script" id=6]
+[ext_resource path="res://Shaders/DivergenceShaderMaterial.tres" type="Material" id=7]
+[ext_resource path="res://Shaders/ViscosityShaderMaterial.tres" type="Material" id=8]
+[ext_resource path="res://Assets/Brushes/SoftBrush.png" type="Texture" id=9]
+[ext_resource path="res://Scenes/NestedViewportControl.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Shaders/ShowNegativeColorShaderMaterial.tres" type="Material" id=11]
+[ext_resource path="res://Shaders/BorderConditionShader.tres" type="Shader" id=12]
+[ext_resource path="res://Shaders/VelocityForcesShaderMaterial.tres" type="Material" id=13]
+[ext_resource path="res://Shaders/AdvectPaintShader.tres" type="Shader" id=15]
+
+[sub_resource type="ShaderMaterial" id=55]
+shader = ExtResource( 15 )
+shader_param/deltaTime = 0.05
+shader_param/brushColor = Color( 0, 0, 0, 0 )
+shader_param/brushCenterUV = null
+shader_param/brushScale = 0.1
+shader_param/brushOn = false
+shader_param/brushTexture = ExtResource( 9 )
+
+[sub_resource type="ViewportTexture" id=18]
+viewport_path = NodePath("VelocityViewport")
+
+[sub_resource type="ViewportTexture" id=67]
+viewport_path = NodePath("ViscosityViewport")
+
+[sub_resource type="ShaderMaterial" id=59]
+shader = ExtResource( 12 )
+shader_param/scale = -1.0
+shader_param/active = true
+
+[sub_resource type="ViewportTexture" id=68]
+viewport_path = NodePath("VelocityForcesViewport")
+
+[sub_resource type="ViewportTexture" id=63]
+viewport_path = NodePath("VelocityBorderViewport")
+
+[sub_resource type="ShaderMaterial" id=61]
+shader = ExtResource( 12 )
+shader_param/scale = 1.0
+shader_param/active = true
+
+[sub_resource type="ViewportTexture" id=73]
+viewport_path = NodePath("PressureViewport")
+
+[sub_resource type="ViewportTexture" id=75]
+viewport_path = NodePath("VelocityBorderViewport")
+
+[sub_resource type="ShaderMaterial" id=30]
+resource_local_to_scene = true
+shader = ExtResource( 3 )
+shader_param/velocity = SubResource( 75 )
+
+[sub_resource type="ViewportTexture" id=74]
+viewport_path = NodePath("PressureBorderViewport")
+
+[sub_resource type="ViewportTexture" id=76]
+viewport_path = NodePath("GradientSubtractionViewport")
+
+[sub_resource type="ShaderMaterial" id=77]
+resource_local_to_scene = true
+shader = ExtResource( 15 )
+shader_param/deltaTime = 0.05
+shader_param/brushColor = Color( 0, 0, 0, 0 )
+shader_param/brushCenterUV = null
+shader_param/brushScale = 0.1
+shader_param/brushOn = false
+shader_param/velocity = SubResource( 76 )
+shader_param/brushTexture = ExtResource( 9 )
+
+[sub_resource type="ViewportTexture" id=78]
+viewport_path = NodePath("DyeViewport")
+
+[sub_resource type="ViewportTexture" id=80]
+viewport_path = NodePath("BackBufferViewport")
+
+[node name="Main" type="Node"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_vertical_guides_": [ 640.0 ]
+}
+
+[node name="VelocityViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+transparent_bg = true
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="VelocityViewport"]
+material = SubResource( 55 )
+centered = false
+
+[node name="ViscosityViewport" parent="." instance=ExtResource( 10 )]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+levels = 4
+shader_material = ExtResource( 8 )
+texture = SubResource( 18 )
+
+[node name="VelocityForcesViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="VelocityForcesViewport"]
+material = ExtResource( 13 )
+texture = SubResource( 67 )
+centered = false
+
+[node name="VelocityBorderViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="VelocityBorderViewport"]
+material = SubResource( 59 )
+texture = SubResource( 68 )
+centered = false
+
+[node name="DivergenceViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="DivergenceViewport"]
+material = ExtResource( 7 )
+texture = SubResource( 63 )
+centered = false
+
+[node name="PressureViewport" parent="." instance=ExtResource( 10 )]
+size = Vector2( 1280, 720 )
+handle_input_locally = false
+script = ExtResource( 6 )
+
+[node name="PressureBorderViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="PressureBorderViewport"]
+material = SubResource( 61 )
+texture = SubResource( 73 )
+centered = false
+
+[node name="GradientSubtractionViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="GradientSubtractionViewport"]
+material = SubResource( 30 )
+texture = SubResource( 74 )
+centered = false
+
+[node name="DyeViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="DyeViewport"]
+material = SubResource( 77 )
+centered = false
+
+[node name="Sprite2" type="Sprite" parent="DyeViewport"]
+visible = false
+texture = ExtResource( 5 )
+centered = false
+
+[node name="BackBufferViewport" type="Viewport" parent="."]
+size = Vector2( 1280, 720 )
+handle_input_locally = false
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="Sprite" type="Sprite" parent="BackBufferViewport"]
+texture = SubResource( 78 )
+centered = false
+
+[node name="TextureRect" type="TextureRect" parent="."]
+material = ExtResource( 11 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = SubResource( 80 )
+expand = true
+
+[node name="UIControl" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="UIControl"]
+margin_left = 8.0
+margin_top = 639.0
+margin_right = 89.0
+margin_bottom = 712.0
+color = Color( 0.34902, 1, 0, 0.313726 )
+
+[connection signal="force_applied" from="UIControl" to="." method="_apply_velocity_force"]
+[connection signal="force_released" from="UIControl" to="." method="_release_velocity_force"]
+[connection signal="color_changed" from="UIControl/ColorPickerButton" to="." method="_on_ColorPickerButton_color_changed"]
